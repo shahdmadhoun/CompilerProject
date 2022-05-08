@@ -7,12 +7,9 @@
 #include<string.h>
 #include<curses.h>
 
-//functions declerations
 int lookup(char s[]);
 int insert(char s[],  int tok);
-
 void parse();
-//void expr();
 void Term();
 void Factor();
 void match(int t);
@@ -36,52 +33,35 @@ void ExpressionList();
 void Expression();
 
 
-
-//size of lexemes array 
 #define STRMAX 999
-
-//size of symtable
 #define SYMMAX 100 
-
-// buffer size
 #define BSIZE 128 
-
-//identefiers declerations
 #define NUM 256
 #define NONE -1
 #define EOS '\0'
-
-//operations
 #define DIV 257
 #define MOD 258
 #define ID 259
-
-//KeyWords
 #define BEGIN 260
 #define END 261
 #define PROGRAM 262
 #define INFIX 263
 #define POSTFIX 264
-
 #define VAR 265
 #define EPSILON 266
 #define CONST 267
-
 #define INTEGER 268
 #define REAL 269
 #define CHAR 270
 #define BOOLEAN 271
-
 #define IF 272
 #define THEN 273
 #define ELSE 274
 #define NOT 275
 #define DO 276
-
 #define RELOP 277
 #define ADDOP 278
 #define MULOP 279
-
 #define INPUT 280
 #define OUTPUT 281
 #define WHILE 282
@@ -89,35 +69,25 @@ void Expression();
 #define AND 284
 #define OR 285
 
-
-
-
-//value of token attribute 
+FILE *input, *output ;
 int tokenval;
 int lineno;
-
-// input && output files declerations
-FILE *input, *output ;
 
 char ids[] ;
 char *dataType = "int ";
 
-//form of symbol table entry
 struct entry { 
     char *lexptr;
     int token;
 };
 
-//symbol table 
 struct entry symtable[]; 
 
-//last used position in lexemes 
 char lexemes [STRMAX];
 int lastchar = -1; 
-
-//last used position in symtable
 struct entry symtable[SYMMAX];
 int lastentry = 0; 
+int lookahead;
 
 
 struct entry keywords[] = {
@@ -128,21 +98,17 @@ struct entry keywords[] = {
 	"END" , END,
 	"infix",INFIX,
 	"postfix",POSTFIX,
-
     "VAR", VAR,
 	"EPSILON" , EPSILON,
     "CONST", CONST,
-
     "INTEGER", INTEGER,
 	"REAL", REAL,
 	"CHAR", CHAR,
 	"BOOLEAN", BOOLEAN,
-
     "IF", IF,
 	"ELSE", ELSE,
     "AND",AND,
 	"OR",OR,
-
     "NOT", NOT,
     "RELOP", RELOP,
 	"ADDOP", ADDOP,
@@ -159,7 +125,6 @@ struct entry keywords[] = {
 };
 
 
-//returns position of entry for s 
 int lookup(char s[])     
 {
     int p;
@@ -169,12 +134,10 @@ int lookup(char s[])
     return 0;
 }
 
-//returns position of entry for s 
 int insert(char s[],  int tok) 
 {
     int len;
     len = strlen(s); 
-    // strlen computes length of s 
     if (lastentry + 1 >= SYMMAX)
         error("symbol table full");
     if (lastchar + len + 1 >= STRMAX)
@@ -188,43 +151,26 @@ int insert(char s[],  int tok)
 }
 
 
-int lookahead;
 
-//parses and translates expression list 
 void parse()
 { 
    lookahead = lexan();
-	match(PROGRAM);//or header function 
-   // emit(ID, tokenval);
-    match(ID);//the name of the project 
+	match(PROGRAM);
+    match(ID); 
 	match('(');
 	match(INPUT);
 	match(',');
 	match(OUTPUT);
 	match(')');
 	match(';');
-	fprintf(output,"#");
-	fprintf(output,"include");
-	fprintf(output,"<");
-	fprintf(output,"iostream");
-	fprintf(output,">\n");
-	fprintf(output,"using ");
-	fprintf(output,"namespace ");
-	fprintf(output,"std");
-	fprintf(output,";\n");
+	fprintf(output,"#include<iostream>\nusing namespace std;\n\n");
 	Declarations();
-	 fprintf(output,"int ");
-	 fprintf(output,"main ");
-	 fprintf(output,"(");
-	 fprintf(output,"void");
-	 fprintf(output,")");
-	  
-	        printf("for parse two \n");
-	    	printf( "%d",lookahead);
-	        printf("\n");
-	   Block();
+	fprintf(output,"\nint main(void)");
+	Block();
 }
+
 void Declarations(){
+    printf("from Declarations\n");
 	while(1){
 	    switch(lookahead){
         case CONST:
@@ -254,15 +200,13 @@ void Declarations(){
         default:
         return ;
         }  
-	}
-    
+	} 
 }
 
 
 void ConstantDefinitions() {
-    printf( "\n ConstantDefinitions here");
+    printf( "from ConstantDefinitions\n");
     ConstantDefinition();
-
     while(1){
         switch (lookahead) {
         case ID:
@@ -271,14 +215,13 @@ void ConstantDefinitions() {
 	        continue;
         default:
         return;
-    }
-
+        }
     }
 }
 
 
 void ConstantDefinition() {
-    printf( "\n ConstantDefinition here");
+    printf( "from ConstantDefinition\n");
     emit(ID, tokenval);
     match(ID);
     match('=');
@@ -290,10 +233,8 @@ void ConstantDefinition() {
 }
 
 void VariableDeclarations() {
-    printf( "\n VariableDeclarations here");
+    printf( "from VariableDeclarations\n");
     VariableDeclaration();
-
-
     while(1)
     switch (lookahead) {
         case ID:
@@ -306,25 +247,21 @@ void VariableDeclarations() {
 }
 
 void VariableDeclaration(){
+    printf( "from VariableDeclaration\n");
     fprintf(output, dataType);
     IdentifierList();
     match(':');
-    //fprintf(output,";");
     Type();
-    //printf(output,"bbb %s ", ids[0]);
     size_t len = strlen(ids);
     for(int i =0 ; i < len ;i++)
-   	//fprintf(output,"%s ", ids[i]);
    	emit(ID , ids[i]);
     match(';');
     fprintf(output,";\n");
     
 }
 
-
 void IdentifierList(){
-    printf( "\n IdentifierList here");
-
+    printf( "from IdentifierList\n");
 	int i = 1;
     ids[0]=ID;
     fprintf(output,"%s ", symtable[tokenval].lexptr);
@@ -346,20 +283,21 @@ void IdentifierList(){
 
 
 void Type(){
-    //int t;
+        printf( "from Type\n");
+
 		switch (lookahead) {
 		case INTEGER: case REAL : case CHAR: case BOOLEAN:
 			emit(lookahead, NONE);
 			match(lookahead);
+            break;
         default:
-            //error("syntax error in type");
-            return;
+        return;
 		} 
 }
 
 
 void Block(){
-    printf( "\n Block here");
+    printf( "from Block\n");
     match(BEGIN);
     fprintf(output,"{\n");
     Statements();
@@ -368,12 +306,10 @@ void Block(){
 }
 
 void Statements(){
-    printf( "\n Statements here");
+    printf( "from Statements\n");
     Statement();
-    //fprintf(output, lookahead);
     while(1)
     switch (lookahead) {
-         
         case ';':
             match(';');
             fprintf(output,";\n");
@@ -386,19 +322,19 @@ void Statements(){
 
 
 void Statement(){ 
-    printf( "\n Statement here");
+    printf( "from Statement\n");
     char t;
     switch (lookahead) {
         case ID:
-         emit(ID, tokenval);
-         match(ID);
-         match(':');
-         match('=');
-         fprintf(output,"=");
-         Expression();
-         break;
+            emit(ID, tokenval);
+            match(ID);
+            match(':');
+            match('=');
+            fprintf(output,"=");
+            Expression();
+            break;
         case BEGIN: 
-          Block();
+            Block();
           break;
         case IF:
         	emit(lookahead,NONE);
@@ -438,40 +374,35 @@ void Statement(){
 
 
 void ElseClause(){
-    printf( "\n ElseClause here");
-
+    printf( "from ElseClause\n");
     switch (lookahead) {
     case ELSE :
-     emit(lookahead,NONE);
-      match(ELSE);
-      Statement();
-      break;
-    case EPSILON:
+        emit(lookahead,NONE);
+        match(ELSE);
+        Statement();
+        break;
     default:
-        return; 
+    return; 
     }
 }
 
 
 void ExpressionList(){
-            printf( "\n ExpressionList here");
-
+    printf( "from ExpressionList\n");
     Expression();
     while(1)
-    switch (lookahead) {
-    case ',' :
-      match(',');
-      Expression();
-      break;
-    case EPSILON:
-    default:
-    return; 
-    }
+        switch (lookahead) {
+        case ',' :
+            match(',');
+            Expression();
+            break;
+        default:
+        return; 
+        }
 } 
 
 void Expression(){
-        printf( "\n Expression here");
-
+    printf( "from Expression\n");
     SimpleExpression();
      switch (lookahead) {
         case '=' : case '>' : case '<': case '>=' : case '<=' :case '<>':
@@ -485,42 +416,36 @@ void Expression(){
 }
 
 
-void SimpleExpression() { // nested switch or if ? 
-    printf( "\n simpleExpression here");
+void SimpleExpression() {
+    printf( "from simpleExpression\n");
     switch (lookahead) {
-    case  ID : case NUM : case '(': case NOT:
+    case ID: case NUM : case '(': case NOT:
         Term();
         while(1)
-        if (lookahead == '+' ||lookahead == '-'||lookahead ==OR)
-            {
-           emit(lookahead,NONE);
-		   match(lookahead);
+        if (lookahead == '+' ||lookahead == '-'||lookahead ==OR) {
+            emit(lookahead,NONE);
+            match(lookahead);
             Term();
 			}
         else 
-        return ; 
+        return; 
+
     case '+': case '-': case OR :
-    	
        emit(lookahead,NONE);
 	   match(lookahead);
        Term();
-        
         while(1)
-        if (lookahead == '+' ||lookahead == '-'||lookahead ==OR)
-            {
-           emit(lookahead,NONE);
-		   match(lookahead);
+        if (lookahead == '+' ||lookahead == '-'||lookahead ==OR) {
+            emit(lookahead,NONE);
+            match(lookahead);
             Term();
-			}
+		}
         else 
            return ;
-  
     }
-    
 }
 
 void Term(){
-    printf( "\n term here");
 	int t;
     Factor();
     while(1)
@@ -534,23 +459,20 @@ void Term(){
         Factor();
         break;
     default:
-        return;
+    return;
     }
 }
 
 
 void Factor(){
-    printf( "\n factor here");
     switch (lookahead) {
         case ID:
             emit(ID, tokenval);
             match(ID);
             break;
         case NUM:
-        printf( "\n  hereeee");
             emit(NUM, tokenval);
             match(NUM);
-            printf( "\n  hereee");
             break;
         case '(':
             match('(');
@@ -588,13 +510,11 @@ int tokenval = NONE;
 //lexical analyzer
 int lexan() 
 {
-    printf( "\n  lexan hereee");
 
     int t;
     while (1) {
-        printf( "\n  lexan 2 hereee");
         t = fgetc(input);
-        if (t == '#') { printf( "\n  lexan 3 hereee");
+        if (t == '#') { 
             //read all lines
             t = getc(input);
             while (t != '\n') {
@@ -608,17 +528,14 @@ int lexan()
         else if (isdigit(t)) { 
             ungetc(t, input);
             fscanf(input,"%d", &tokenval);
-            printf( "\n  lexan 4 hereee");
             return NUM;
         }
         else if (isalpha(t)) {  
-            printf( "\n  lexan 5 hereee");
             int p, b = 0;
             while (isalnum(t)) { 
                 lexbuf[b] = t;
                 t = fgetc(input);
                 b = b + 1;
-                //printf( "\n  lexan 6 hereee");
                 if (b >= BSIZE)
                     error("compiler error");
             }
@@ -629,30 +546,20 @@ int lexan()
             if (p == 0)
                 p = insert(lexbuf, ID);
             tokenval = p;
-            printf( "\n  lexan 7 hereee");
-            printf( "\n test" + symtable[p].token);
             return symtable[p].token;
         }
 		else if (t == EOF){
-			printf("word");
-			printf( "\n  lexan 8 hereee");
 			return END;
-			
 		}
         else {
             tokenval = NONE;
-            printf( "\n  lexan 9 hereee");
             return t;
         }
-        printf( "\n  lexan 10 hereee");
-
     }
-    printf( "\n  lexan 11 hereee");
 }
-//loads keywords into symtable
+
 void init() 
 {
-    printf( "\n  init hereee");
     struct entry *p;
     for (p = keywords; p->token; p++)
         insert(p->lexptr, p->token);
@@ -697,21 +604,16 @@ void emit(int t,int tval)
 		fprintf(output,"var "); break;
 	case INTEGER:
 	    dataType = "int ";
-		//fprintf(output,"int "); 
 		break;
     case REAL:
         dataType = "real ";
-		//fprintf(output,"float ");
 		break;
     case CHAR:
         dataType = "char ";
-		//fprintf(output,"char "); 
 		break;
 	case BOOLEAN:
         dataType = "bool ";
-		//fprintf(output,"bool "); 
 		break;
-
     case IF:
 		fprintf(output,"if "); break;
 	case ELSE :
@@ -725,33 +627,29 @@ void emit(int t,int tval)
 int  main(int __argc,char *__argv[]){
 	char * inputfile="input.txt";
 		char * outputfile="output.txt";
-            printf( "\n  main 1 hereee");
+            printf( "from main ");
 
 	if(__argc==3){
       inputfile=__argv[1];
 	  outputfile=__argv[2];
-	  printf( "\n  main 2 hereee");
 
 	}
 		input = fopen (inputfile, "r" ) ;
             if ( input == NULL )
-                {    printf( "\n  main 3 hereee");
-                    puts ( "Cannot open source file" ) ;
-			system("pause");
-                exit(0 ) ;      
+                {
+                    printf ( "Cannot open source file" );
+			        system("pause");
+                    exit(0);      
                 }
 
 			output = fopen ( outputfile,"w" ) ; 
             if ( output == NULL )        
                 {           
-                    printf( "\n  main 4 hereee");
-					puts ( "Cannot open target file" ) ; 
+					printf ( "Cannot open target file" ) ; 
 					system("pause");
-                   exit(0 ) ;               
+                   exit(0);               
 			}  
-			printf( "\n  main 5 hereee");
       init();
-      printf( "\n  main 6 hereee");
       parse();
       fclose(output);
       fclose(input);
