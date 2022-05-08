@@ -1,0 +1,10 @@
+PROGRAM Example(INPUT,OUTPUT); 
+VAR
+X,Y,Z: INTEGER; 
+BEGIN 
+X:=10; Y:=20; 
+IF X>Y THEN 
+Z:=X+Y ELSE 
+Z:=X-Y; 
+WRITELN(Z)  
+END
