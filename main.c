@@ -10,6 +10,7 @@
 //functions declerations
 int lookup(char s[]);
 int insert(char s[],  int tok);
+
 void parse();
 //void expr();
 void Term();
@@ -99,6 +100,7 @@ int lineno;
 FILE *input, *output ;
 
 char ids[] ;
+char *dataType = "int ";
 
 //form of symbol table entry
 struct entry { 
@@ -211,10 +213,10 @@ void parse()
 	fprintf(output,"std");
 	fprintf(output,";\n");
 	Declarations();
-	 fprintf(output,"Void ");
+	 fprintf(output,"int ");
 	 fprintf(output,"main ");
 	 fprintf(output,"(");
-	 //fprintf(output,"Void");
+	 fprintf(output,"void");
 	 fprintf(output,")");
 	  
 	        printf("for parse two \n");
@@ -304,14 +306,12 @@ void VariableDeclarations() {
 }
 
 void VariableDeclaration(){
-    printf( "\n VariableDeclaration here");
-
-   
+    fprintf(output, dataType);
     IdentifierList();
     match(':');
     //fprintf(output,";");
     Type();
-    printf(output,"bbb %s ", ids[0]);
+    //printf(output,"bbb %s ", ids[0]);
     size_t len = strlen(ids);
     for(int i =0 ; i < len ;i++)
    	//fprintf(output,"%s ", ids[i]);
@@ -328,12 +328,12 @@ void IdentifierList(){
 	int i = 1;
     ids[0]=ID;
     fprintf(output,"%s ", symtable[tokenval].lexptr);
-    
 	match(ID);
 	while(1)
     switch (lookahead) {
         case ',':
          match(',');
+        fprintf(output ,", ");
          emit(ID, tokenval);
         ids[i]=ID;
         i=i+1;
@@ -346,8 +346,6 @@ void IdentifierList(){
 
 
 void Type(){
-        printf( "\n Type here");
-
     //int t;
 		switch (lookahead) {
 		case INTEGER: case REAL : case CHAR: case BOOLEAN:
@@ -409,9 +407,8 @@ void Statement(){
             Expression();
             fprintf(output,") ");
             match(THEN);
-            fprintf(output,"{");
             Statement();
-            fprintf(output,"}\n");
+            fprintf(output,";\n");
             ElseClause();
             break;
         case WHILE:
@@ -698,15 +695,22 @@ void emit(int t,int tval)
 		fprintf(output,"const "); break;
     case VAR:
 		fprintf(output,"var "); break;
-
 	case INTEGER:
-		fprintf(output,"int "); break;
+	    dataType = "int ";
+		//fprintf(output,"int "); 
+		break;
     case REAL:
-		fprintf(output,"float "); break;
+        dataType = "real ";
+		//fprintf(output,"float ");
+		break;
     case CHAR:
-		fprintf(output,"char "); break;
+        dataType = "char ";
+		//fprintf(output,"char "); 
+		break;
 	case BOOLEAN:
-		fprintf(output,"bool "); break;
+        dataType = "bool ";
+		//fprintf(output,"bool "); 
+		break;
 
     case IF:
 		fprintf(output,"if "); break;
@@ -751,6 +755,7 @@ int  main(int __argc,char *__argv[]){
       parse();
       fclose(output);
       fclose(input);
+
    
 	system("pause");
 	return 0;
