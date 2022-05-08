@@ -211,14 +211,10 @@ void parse()
 	fprintf(output,"std");
 	fprintf(output,";\n");
 	Declarations();
-	//while (lookahead != DONE) {
-		 printf("for parse \n");
-	    	printf( "%d",lookahead);
-	        printf("\n");
-	 fprintf(output,"void ");
+	 fprintf(output,"Void ");
 	 fprintf(output,"main ");
 	 fprintf(output,"(");
-	 fprintf(output,"void");
+	 //fprintf(output,"Void");
 	 fprintf(output,")");
 	  
 	        printf("for parse two \n");
@@ -227,36 +223,35 @@ void parse()
 	   Block();
 }
 void Declarations(){
-    printf( "\n Declarations here");
-
-	printf("%d",lookahead);
 	while(1){
 	    switch(lookahead){
         case CONST:
-        emit(lookahead,NONE);
-        match(CONST);
-        ConstantDefinitions();
-        while(1){
-            switch (lookahead) {
-            case VAR:
             emit(lookahead,NONE);
-            match(VAR);
-            VariableDeclarations();
+            match(CONST);
+            fprintf(output , "double ");
+            ConstantDefinitions();
+            while(1){
+                lookahead = lexan();
+                switch (lookahead) {
+                case VAR:
+                //emit(lookahead,NONE);
+                match(VAR);
+                VariableDeclarations();
+                break;
+                default:
+                break;
+                }
+                return;
+            }
             break;
-            default:
-            break;
-        }
-        return;
-        }
-        break;
         case VAR:
-            emit(lookahead,NONE);
+            //emit(lookahead,NONE);
             match(VAR);
             VariableDeclarations();
             break;
-    default:
-    return ;
-   }  
+        default:
+        return ;
+        }  
 	}
     
 }
@@ -266,14 +261,16 @@ void ConstantDefinitions() {
     printf( "\n ConstantDefinitions here");
     ConstantDefinition();
 
-    while(1)
-    switch (lookahead) {
+    while(1){
+        switch (lookahead) {
         case ID:
             match(ID);
             ConstantDefinition();
 	        continue;
         default:
         return;
+    }
+
     }
 }
 
@@ -314,7 +311,7 @@ void VariableDeclaration(){
     match(':');
     //fprintf(output,";");
     Type();
-    //printf(output,"bbb %s ", ids[0]);
+    printf(output,"bbb %s ", ids[0]);
     size_t len = strlen(ids);
     for(int i =0 ; i < len ;i++)
    	//fprintf(output,"%s ", ids[i]);
@@ -337,7 +334,7 @@ void IdentifierList(){
     switch (lookahead) {
         case ',':
          match(',');
-        // emit(ID, tokenval);
+         emit(ID, tokenval);
         ids[i]=ID;
         i=i+1;
 	     match(ID);
@@ -384,8 +381,6 @@ void Statements(){
             fprintf(output,";\n");
             Statement();
             continue;
-
-        case EPSILON:
         default: 
 		return;
     }
@@ -412,9 +407,11 @@ void Statement(){
             match(IF);
             fprintf(output,"(");
             Expression();
-            fprintf(output,")\n");
+            fprintf(output,") ");
             match(THEN);
+            fprintf(output,"{");
             Statement();
+            fprintf(output,"}\n");
             ElseClause();
             break;
         case WHILE:
@@ -698,9 +695,9 @@ void emit(int t,int tval)
     case OR:
 		fprintf(output,"OR "); break;
     case CONST:
-		fprintf(output,"CONST "); break;
+		fprintf(output,"const "); break;
     case VAR:
-		fprintf(output,"VAR "); break;
+		fprintf(output,"var "); break;
 
 	case INTEGER:
 		fprintf(output,"int "); break;
